@@ -1,0 +1,177 @@
+<template>
+  <q-page id="registrationPage">
+    <div class="flex column justify-center align-center card">
+      <h6 class="text-h5 text-center q-mt-sm q-mb-lg">
+        Welcome to Scribe Medica
+      </h6>
+      <q-input
+        label="Email"
+        v-model="email"
+        class="q-mb-md"
+        :rules="[validateEmail]"
+        :error="signupStatus === 'error' ? signupError : null"
+      />
+      <q-input
+        label="Password"
+        v-model="password"
+        class="q-mb-md"
+        type="password"
+        :rules="[validatePassword]"
+        :error="signupStatus === 'error' ? signupError : null"
+      />
+      <q-input
+        label="Confirm Password"
+        v-model="confirmPassword"
+        class="q-mb-lg"
+        type="password"
+        :rules="[validateConfirmPassword]"
+        :error="signupStatus === 'error' ? signupError : null"
+      />
+      <q-btn
+        text-color="white"
+        size="md"
+        style="background-color: #f57927"
+        @click="handleSignUp"
+        >SIGN UP</q-btn
+      >
+      <p
+        v-if="error"
+        class="text-h6 text-center q-pt-lg cursor-pointer"
+        style="width: fit-content; margin: 0 auto; color: red"
+      >
+        {{ error }}
+      </p>
+      <q-separator class="q-mt-lg q-mb-lg" />
+      <q-btn
+        text-color="white"
+        size="md"
+        style="background-color: #f57927"
+        @click="handleGoogleSignUp"
+        >SIGN UP WITH GOOGLE</q-btn
+      >
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { auth, mapAuthCodeToMessage } from "../../services/firebase";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  sendEmailVerification,
+} from "firebase/auth";
+import { SERVER_URL } from "../../utils/constants";
+import axiosApiInstance from "src/services/axios";
+
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+
+const error = ref("");
+
+// Function to check if passwords match
+function validateConfirmPassword() {
+  if (password.value !== confirmPassword.value) {
+    return false || "Passwords do not match.";
+  }
+
+  return true;
+}
+
+// Function to check password is valid
+function validatePassword() {
+  // Password validation: at least 8 characters, one special character, and one number
+  const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  if (password.value.length <= 0 && !passwordRegex.test(password.value)) {
+    return (
+      false ||
+      "Password must be at least 8 characters long and contain one special character and one number."
+    );
+  }
+
+  return true;
+}
+
+// Function to validate email
+function validateEmail() {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (email.value.length <= 0 && !emailRegex.test(email.value)) {
+    return false || "Invalid email address.";
+  }
+  return true;
+}
+
+// Function to handle form submission
+async function handleSignUp() {
+  if (
+    password.value.length >= 1 &&
+    email.value.length >= 1 &&
+    validatePassword() &&
+    validateEmail() &&
+    validateConfirmPassword()
+  ) {
+    try {
+      error.value = "";
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email.value,
+        password.value
+      );
+
+      await sendEmailVerification(userCredential.user);
+      await axiosApiInstance.post(`${SERVER_URL}/auth/register`, {
+        userId: userCredential.user.uid,
+        fullName: userCredential.user.displayName,
+        email: userCredential.user.email,
+      });
+      localStorage.setItem("auth", userCredential.user.accessToken);
+      if (!userCredential.user.emailVerified) {
+        localStorage.setItem("emailNotVerified", true);
+      }
+      location.reload();
+    } catch (err) {
+      const message = mapAuthCodeToMessage(err.code);
+      error.value = message;
+      // console.log(err);
+    }
+  }
+}
+
+// Function to handle Google sign-up
+async function handleGoogleSignUp() {
+  error.value = "";
+  try {
+    const provider = await new GoogleAuthProvider();
+    const res = await signInWithPopup(auth, provider);
+    await axiosApiInstance.post(`${SERVER_URL}/auth/register`, {
+      userId: res.user.uid,
+      fullName: res.user.displayName,
+      email: res.user.email,
+    });
+
+    localStorage.setItem("auth", res.user.accessToken);
+    if (!res.user.emailVerified) {
+      localStorage.setItem("emailNotVerified", true);
+    }
+    location.reload();
+  } catch (err) {
+    error.value = "Unable to authenticate with google.";
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+#registrationPage {
+  margin-top: 100px;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 600px !important;
+}
+.card {
+  height: 100%;
+  padding-top: 100px;
+}
+</style>
