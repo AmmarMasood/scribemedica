@@ -15,8 +15,8 @@
         </router-link>
       </div>
       <img
-        src="../assets/consultation.jpeg"
-        alt="Scribe Medica Logo"
+        src="../assets/consultation.png"
+        alt="Consultations"
         class="landing-top--img"
       />
     </div>
@@ -24,7 +24,7 @@
     <div class="landing-bottom">
       <img
         src="../assets/target-notes.png"
-        alt="Scribe Medica Logo"
+        alt="target notes"
         class="landing-top--img"
       />
       <div class="landing-bottom--inner">
