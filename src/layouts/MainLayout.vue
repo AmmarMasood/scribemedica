@@ -75,7 +75,7 @@
       <div class="row q-pa-md q-mt-md">
         <div class="col">
           <q-separator />
-          <h4 class="text-h6">© 2023 Scribe Medica. All rights reserved.</h4>
+          <h4 class="text-h6">© 2024 Scribe Medica. All rights reserved.</h4>
           <p>
             Scribe Medica <br />
             2601 Jackson Ave. #1171 <br />
