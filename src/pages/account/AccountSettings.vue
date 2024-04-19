@@ -331,7 +331,7 @@ const handleManageSubscribtion = async () => {
   if (userProfile.value?.subscription?.stripeCustomerId) {
     const stripeSession = await stripe.billingPortal.sessions.create({
       customer: userProfile.value.subscription.stripeCustomerId,
-      return_url: "https://scribemedica.netlify.app/account",
+      return_url: "https://www.scribemedica.ai/account",
     });
 
     window.location = stripeSession.url;

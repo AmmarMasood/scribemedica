@@ -111,6 +111,9 @@ async function handleGoogleLogin() {
       fullName: res.user.displayName,
       email: res.user.email,
     });
+    // await axiosApiInstance.get(`${SERVER_URL}/healthcheck`);
+
+    return;
     if (!res.user.emailVerified) {
       localStorage.setItem("emailNotVerified", true);
     }

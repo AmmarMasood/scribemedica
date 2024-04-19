@@ -195,8 +195,8 @@ const getPlans = (data) => {
 
 const handleSubscribe = async (priceId, planId) => {
   const stripeSession = await stripe.checkout.sessions.create({
-    success_url: "https://scribemedica.netlify.app/account",
-    cancel_url: "https://scribemedica.netlify.app/account",
+    success_url: "https://www.scribemedica.ai/account",
+    cancel_url: "https://www.scribemedica.ai/account",
     payment_method_types: ["card"],
     currency: "usd",
     mode: "subscription",
