@@ -41,7 +41,7 @@
       >
         {{ error }}
       </p>
-      <q-separator class="q-mt-lg q-mb-lg" />
+      <q-separator class="q-mt-md q-mb-md" />
       <q-btn
         text-color="white"
         size="md"
@@ -49,6 +49,24 @@
         @click="handleGoogleSignUp"
         >SIGN UP WITH GOOGLE</q-btn
       >
+    </div>
+
+    <p
+      v-if="showAgreeError"
+      class="text-h6 text-center q-pt-lg cursor-pointer"
+      style="width: fit-content; margin: 0 auto; color: red"
+    >
+      You must agree to the terms of service to continue.
+    </p>
+
+    <div class="q-mt-lg agree-container">
+      <q-checkbox v-model="agreeTerms" color="orange" />
+      <p>
+        I agree to the terms of
+        <a href="/terms" target="_blank">
+          privacy policy, terms of use and BAA.</a
+        >
+      </p>
     </div>
   </q-page>
 </template>
@@ -69,8 +87,19 @@ import axiosApiInstance from "src/services/axios";
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
+const agreeTerms = ref(false);
+const showAgreeError = ref(false);
 
 const error = ref("");
+
+function validateIsAgree() {
+  if (!agreeTerms.value) {
+    showAgreeError.value = true;
+    return false;
+  }
+  showAgreeError.value = false;
+  return true;
+}
 
 // Function to check if passwords match
 function validateConfirmPassword() {
@@ -84,14 +113,19 @@ function validateConfirmPassword() {
 // Function to check password is valid
 function validatePassword() {
   // Password validation: at least 8 characters, one special character, and one number
-  const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-  if (password.value.length <= 0 && !passwordRegex.test(password.value)) {
+  if (password.value.length < 8) {
+    return false || "Password must be at least 8 characters long.";
+  }
+  if (
+    !password.value.match(
+      /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/
+    )
+  ) {
     return (
       false ||
-      "Password must be at least 8 characters long and contain one special character and one number."
+      "Password must contain at least one number and one special character."
     );
   }
-
   return true;
 }
 
@@ -113,6 +147,9 @@ async function handleSignUp() {
     validateEmail() &&
     validateConfirmPassword()
   ) {
+    if (!validateIsAgree()) {
+      return;
+    }
     try {
       error.value = "";
       const userCredential = await createUserWithEmailAndPassword(
@@ -131,6 +168,9 @@ async function handleSignUp() {
       if (!userCredential.user.emailVerified) {
         localStorage.setItem("emailNotVerified", true);
       }
+
+      localStorage.setItem("firstLogin", true);
+
       location.reload();
     } catch (err) {
       const message = mapAuthCodeToMessage(err.code);
@@ -143,6 +183,9 @@ async function handleSignUp() {
 // Function to handle Google sign-up
 async function handleGoogleSignUp() {
   error.value = "";
+  if (!validateIsAgree()) {
+    return;
+  }
   try {
     const provider = await new GoogleAuthProvider();
     const res = await signInWithPopup(auth, provider);
@@ -156,6 +199,13 @@ async function handleGoogleSignUp() {
     if (!res.user.emailVerified) {
       localStorage.setItem("emailNotVerified", true);
     }
+    const firstLogin = localStorage.getItem("firstLogin");
+    if (firstLogin) {
+      localStorage.setItem("firstLogin", false);
+    } else {
+      localStorage.setItem("firstLogin", true);
+    }
+
     location.reload();
   } catch (err) {
     error.value = "Unable to authenticate with google.";
@@ -173,5 +223,15 @@ async function handleGoogleSignUp() {
 .card {
   height: 100%;
   padding-top: 100px;
+}
+.agree-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
 }
 </style>

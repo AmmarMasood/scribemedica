@@ -74,9 +74,38 @@ const toggleMicrophone = async () => {
   }
 };
 
-onMounted(async () => {
+const checkMicPermission = async () => {
+  try {
+    const permissionStatus = await navigator.permissions.query({
+      name: "microphone",
+    });
+
+    // Log when permission is granted
+    permissionStatus.onchange = () => {
+      if (permissionStatus.state === "granted") {
+        handleBrowserDevices();
+      } else if (permissionStatus.state === "denied") {
+        console.log("Microphone permission denied");
+      } else if (permissionStatus.state === "prompt") {
+        console.log("Microphone permission prompt");
+      }
+    };
+  } catch (err) {
+    console.error(
+      "An error occurred while checking microphone permission",
+      err
+    );
+  }
+};
+
+const handleBrowserDevices = async () => {
   await updateMicrophoneList();
   await toggleMicrophone();
+};
+
+onMounted(async () => {
+  checkMicPermission();
+  handleBrowserDevices();
 });
 
 watch(selectedMicrophone, () => {

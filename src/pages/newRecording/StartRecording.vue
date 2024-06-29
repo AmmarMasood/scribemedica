@@ -3,12 +3,12 @@
     <div class="container">
       <div class="container--inner">
         <h2>Start a new recording.</h2>
-        <q-input
+        <!-- <q-input
           color="orange-14"
           filled
           v-model="noteName"
           label="Description"
-        />
+        /> -->
         <q-input
           color="orange-14"
           filled
@@ -39,16 +39,16 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 import { useQuasar } from "quasar";
 import { SERVER_URL } from "src/utils/constants";
-import { auth } from "../../services/firebase";
 import axiosApiInstance from "src/services/axios";
-import MicroPhone from "../../components/Recording/MicroPhone.vue";
+
+// const options = ["Inpatient", "Outpatient", "Dictation"];
+const options = ["New Patient", "Return Visit"];
 
 const $q = useQuasar();
-const type = ref("Inpatient");
+const type = ref(options[0]);
 const noteName = ref("");
 const patientName = ref("");
 const router = useRouter();
-const options = ["Inpatient", "Outpatient", "Dictation"];
 
 async function handleNewRecording() {
   try {
@@ -66,7 +66,7 @@ async function handleNewRecording() {
       `${SERVER_URL}/private/notes/create`,
       {
         type: type.value.toLowerCase(),
-        description: noteName.value,
+        // description: noteName.value,
         patientName: patientName.value,
         finalized: false,
       }

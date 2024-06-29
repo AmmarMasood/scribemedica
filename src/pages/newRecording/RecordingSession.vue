@@ -52,11 +52,12 @@ async function handleFinalize(transcript) {
     });
     return;
   }
-  finalizeDialog.value = true;
+  // finalizeDialog.value = true;
   myTranscript.value = transcript;
+  generateNoteDetail("System Based Assessment And Plan");
 }
 
-const generateNoteDetail = async (noteType, patientGender) => {
+const generateNoteDetail = async (noteType) => {
   loading.value = true;
   try {
     const res = await axiosApiInstance.post(
@@ -64,7 +65,6 @@ const generateNoteDetail = async (noteType, patientGender) => {
       {
         transcript: myTranscript.value,
         noteType: noteType,
-        patientGender: patientGender,
       }
     );
     if (res.data) {

@@ -53,6 +53,7 @@
               label="Logout"
               @click="logoutUser"
               size="md"
+              class="logout-btn"
               style="background-color: #f57927"
             />
           </div>
@@ -70,6 +71,7 @@
     </q-page-container>
 
     <CookieBanner />
+    <WelcomeModal />
 
     <div class="q-pa-md example-row-equal-width">
       <div class="row q-pa-md q-mt-md">
@@ -95,6 +97,7 @@ import { auth } from "../services/firebase";
 import { signOut } from "firebase/auth";
 import VerifyEmail from "../components/Auth/VerifyEmail.vue";
 import CookieBanner from "../components/Auth/CookieBanner.vue";
+import WelcomeModal from "../components/Auth/WelcomeModal.vue";
 
 const router = useRouter();
 const isLoggedIn = ref(localStorage.getItem("auth") ? true : false);
@@ -110,6 +113,7 @@ function logoutUser() {
       // Sign-out successful.
       localStorage.removeItem("auth");
       localStorage.removeItem("emailNotVerified");
+      localStorage.setItem("firstLogin", false);
       location.reload();
     })
     .catch((error) => {
@@ -163,6 +167,19 @@ watch(localStorage.getItem("emailNotVerified"), (newValue) => {
   & > button {
     margin-left: 50px;
     align-self: center;
+  }
+
+  .logout-btn {
+    @media screen and (max-width: 500px) {
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin-top: 10px;
+      margin-right: 10px;
+      background: #fff;
+      height: fit-content;
+      width: fit-content;
+    }
   }
 }
 </style>

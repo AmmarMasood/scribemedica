@@ -60,6 +60,10 @@ onMounted(() => {
     width: 450px;
   }
 
+  @media screen and (max-width: 500px) {
+    width: 350px;
+  }
+
   h5 {
     font-weight: 500;
     margin: 0;

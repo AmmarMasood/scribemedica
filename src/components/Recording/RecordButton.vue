@@ -19,7 +19,7 @@
     </p>
 
     <div style="padding: 30px; font-size: 18px">
-      <p>{{ transcript }}</p>
+      <!-- <p>{{ transcript }}</p> -->
     </div>
   </div>
 </template>
@@ -181,13 +181,24 @@ const updateTranscriptOnPause = async () => {
     });
   }
 };
-const onClick = () => {
-  if (isRecording.value) {
-    stopRecording();
-    pauseTimer(); // Pause the timer when recording stops
-  } else {
-    startRecording();
-    startTimer(); // Start the timer when recording starts
+const onClick = async () => {
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (isRecording.value) {
+      stopRecording();
+      pauseTimer(); // Pause the timer when recording stops
+    } else {
+      startRecording();
+      startTimer(); // Start the timer when recording starts
+    }
+  } catch (error) {
+    $q.notify({
+      color: "negative",
+      message: "Please enable microphone access to start recording.",
+      icon: "report_problem",
+      position: "top",
+    });
+    return;
   }
 };
 </script>

@@ -23,13 +23,13 @@
         >
       </div>
 
-      <q-input
+      <!-- <q-input
         color="orange-14"
         filled
         v-model="noteName"
         label="Description"
         class="field"
-      />
+      /> -->
       <q-input
         color="orange-14"
         filled
@@ -37,15 +37,7 @@
         label="Patient Name"
         class="field"
       />
-      <q-input
-        type="textarea"
-        color="orange-14"
-        filled
-        v-model="transcript"
-        class="extaread-field"
-        label="Transcript"
-        ref="textareaTranscript"
-      />
+
       <div class="header-bottom">
         <h2>Generated {{ noteDetail?.noteType }}</h2>
         <q-btn
@@ -64,22 +56,32 @@
         label="Type"
         class="field"
       />
-      <q-select
+      <!-- <q-select
         color="orange-14"
         filled
         v-model="patientGender"
         :options="patientGenderOptions"
         label="Gender / Pronouns"
         class="field"
-      />
+      /> -->
       <q-input
         type="textarea"
         color="orange-14"
         filled
         v-model="generatedNote"
-        label="Transcript"
+        label="Generated Notes"
         class="extaread-field"
         ref="textareaNote"
+      />
+      <q-input
+        type="textarea"
+        color="orange-14"
+        filled
+        style="margin-top: 30px"
+        v-model="transcript"
+        class="extaread-field"
+        label="Transcript"
+        ref="textareaTranscript"
       />
     </div>
   </q-page>
@@ -135,15 +137,15 @@ const regerateMedicalNote = async () => {
     });
     return;
   }
-  if (!patientGender.value) {
-    $q.notify({
-      color: "negative",
-      message: "Patient gender is required",
-      icon: "report_problem",
-      position: "top",
-    });
-    return;
-  }
+  // if (!patientGender.value) {
+  //   $q.notify({
+  //     color: "negative",
+  //     message: "Patient gender is required",
+  //     icon: "report_problem",
+  //     position: "top",
+  //   });
+  //   return;
+  // }
   noteloading.value = true;
   try {
     const res = await axiosApiInstance.post(
@@ -151,7 +153,7 @@ const regerateMedicalNote = async () => {
       {
         transcript: transcript.value,
         noteType: noteDetailType.value,
-        patientGender: patientGender.value,
+        // patientGender: patientGender.value,
       }
     );
     if (res.data) {
@@ -193,23 +195,23 @@ const updateNote = async () => {
     return;
   }
 
-  if (patientGender.value.length < 1) {
-    $q.notify({
-      color: "negative",
-      message: "Patient gender is required",
-      icon: "report_problem",
-      position: "top",
-    });
-    return;
-  }
+  // if (patientGender.value.length < 1) {
+  //   $q.notify({
+  //     color: "negative",
+  //     message: "Patient gender is required",
+  //     icon: "report_problem",
+  //     position: "top",
+  //   });
+  //   return;
+  // }
 
   try {
     const res = await axiosApiInstance.put(
       `${SERVER_URL}/private/notes/${route.params.noteId}`,
       {
-        description: noteName.value,
+        // description: noteName.value,
         patientName: patientName.value,
-        patientGender: patientGender.value,
+        // patientGender: patientGender.value,
         transcription: transcript.value,
         finalized: true,
         recordingLength: note.value.recordingLength,

@@ -89,6 +89,13 @@ function handleLogin() {
         if (!data.user.emailVerified) {
           localStorage.setItem("emailNotVerified", true);
         }
+        const firstLogin = localStorage.getItem("firstLogin");
+        if (firstLogin) {
+          localStorage.setItem("firstLogin", false);
+        } else {
+          localStorage.setItem("firstLogin", true);
+        }
+
         location.reload();
       })
       .catch((err) => {
@@ -116,6 +123,12 @@ async function handleGoogleLogin() {
       localStorage.setItem("emailNotVerified", true);
     }
     localStorage.setItem("auth", res.user.accessToken);
+    const firstLogin = localStorage.getItem("firstLogin");
+    if (firstLogin) {
+      localStorage.setItem("firstLogin", false);
+    } else {
+      localStorage.setItem("firstLogin", true);
+    }
 
     location.reload();
   } catch (err) {

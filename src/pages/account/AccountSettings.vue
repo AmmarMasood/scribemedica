@@ -340,10 +340,12 @@ const handleManageSubscribtion = async () => {
 };
 
 const checkIfFreePlanIsActive = (subscription) => {
-  if (new Date(subscription?.freePlanExpirationDate) > Date.now()) {
-    return "Active";
-  }
-  return "Inactive";
+  // console.log("subscription", subscription);
+  // if (new Date(subscription?.freePlanExpirationDate) > Date.now()) {
+  //   return "Active";
+  // }
+  // return "Inactive";
+  return subscription.status;
 };
 
 onMounted(() => {
