@@ -47,10 +47,7 @@
 import { ref, defineProps, defineEmits, watch, onMounted } from "vue";
 
 const options = ["She/Her", "He/Him", "They/Them"];
-const noteTypeOptions = [
-  "System Based Assessment And Plan",
-  "Clinical Discussion",
-];
+const noteTypeOptions = ["SOAP Note", "Concise"];
 
 // Use 'props' and 'emits' from setup context
 const props = defineProps(["show", "generateNoteDetail", "handleFinalize"]);

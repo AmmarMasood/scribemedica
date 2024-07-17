@@ -5,7 +5,7 @@
     /></q-inner-loading>
 
     <div class="container">
-      <h2>Here is a list of your past recordings.</h2>
+      <h2>Here is a list of your past notes</h2>
       <div class="container--inner">
         <div class="container--inner-searchbox">
           <q-input

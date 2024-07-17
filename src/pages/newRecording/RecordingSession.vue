@@ -54,7 +54,7 @@ async function handleFinalize(transcript) {
   }
   // finalizeDialog.value = true;
   myTranscript.value = transcript;
-  generateNoteDetail("System Based Assessment And Plan");
+  generateNoteDetail("SOAP Note");
 }
 
 const generateNoteDetail = async (noteType) => {
