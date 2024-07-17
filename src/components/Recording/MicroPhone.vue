@@ -6,13 +6,13 @@
         outlined
         v-model="selectedMicrophone"
         :options="audioDevices"
-        label="Select audio device"
+        label="Input device"
         color="orange-14"
       >
       </q-select>
     </div>
     <div class="mic--inner-container">
-      <label>Sound Level</label>
+      <label>Microphone Gain</label>
       <AVMedia
         :media="stream"
         type="vbar"

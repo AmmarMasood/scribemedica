@@ -10,9 +10,13 @@
     <h5>
       Cookies help us deliver the best experience on our website. By using our
       website, you agree to the use of cookies.
-      <router-link to="/privacy-policy"
-        >Find out how we use cookies.</router-link
+      <a
+        href="https://drive.google.com/file/d/1LTJXG3QOSWIUpUjIZOrm0XgOUbkRDIFB/view?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
       >
+        Find out how we use cookies.
+      </a>
     </h5>
 
     <q-btn

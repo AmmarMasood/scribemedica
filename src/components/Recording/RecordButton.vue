@@ -3,6 +3,7 @@
     <MicroPhone />
     <button :class="'btn'" @click="onClick" :disabled="loading">
       <img :src="isRecording ? StopIcon : BtnIcon" alt="btn" />
+      <span>Capture Conversation</span>
     </button>
     <q-btn
       @click="handleFinalize"
@@ -45,11 +46,33 @@ const averageVolume = ref(null); // To store the average volume
 const $q = useQuasar();
 const route = useRoute();
 const props = defineProps(["handleFinalize"]);
+const isWakeLockSupported = "wakeLock" in navigator;
+const wakeLock = ref(null);
 
 let mediaRecorder; // Move the mediaRecorder variable to a higher scope
 
 let timer = ref(0); // Initialize timer variable in milliseconds
 let timerInterval;
+
+const requestWakeLock = async () => {
+  if (isWakeLockSupported) {
+    try {
+      wakeLock.value = await navigator.wakeLock.request("screen");
+      console.log("Wake Lock is active");
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  }
+};
+
+const releaseWakeLock = () => {
+  if (wakeLock.value) {
+    wakeLock.value.release().then(() => {
+      wakeLock.value = null;
+      console.log("Wake Lock has been released");
+    });
+  }
+};
 
 const startTimer = () => {
   timerInterval = setInterval(() => {
@@ -77,6 +100,7 @@ function formatMillisecondsToMinutesSeconds(milliseconds) {
 }
 
 const startRecording = () => {
+  requestWakeLock();
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     if (MediaRecorder.isTypeSupported("video/webm; codecs=vp9")) {
       var options = { mimeType: "video/webm; codecs=vp9" };
@@ -149,6 +173,7 @@ const startRecording = () => {
 };
 
 const stopRecording = () => {
+  releaseWakeLock();
   mediaRecorder.stop();
   isRecording.value = false;
   averageVolume.value = null;
@@ -157,6 +182,27 @@ const stopRecording = () => {
 
 const handleFinalize = () => {
   props.handleFinalize(transcript.value);
+};
+
+const getNoteDetails = async () => {
+  try {
+    const response = await axiosApiInstance.get(
+      `${SERVER_URL}/private/notes/${route.params.patientId}`
+    );
+    if (response.data.note) {
+      if (response.data.note.transcription) {
+        transcript.value = response.data.note.transcription;
+        timer.value = response.data.note.recordingLength;
+      }
+    }
+  } catch (e) {
+    $q.notify({
+      color: "negative",
+      message: "Unable to fetch note details.",
+      icon: "report_problem",
+      position: "top",
+    });
+  }
 };
 
 const updateTranscriptOnPause = async () => {
@@ -201,6 +247,10 @@ const onClick = async () => {
     return;
   }
 };
+
+onMounted(() => {
+  getNoteDetails();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -213,15 +263,26 @@ const onClick = async () => {
 .btn {
   background: #f57927;
   border: none;
-  height: 100px;
-  width: 100px;
+  height: fit-content;
+  width: fit-content;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
-  border-radius: 50%;
+  border-radius: 10px;
   cursor: pointer;
   margin-top: 100px;
+
+  img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+  }
+  span {
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+  }
 }
 .btn-recording {
   border-width: 10px;

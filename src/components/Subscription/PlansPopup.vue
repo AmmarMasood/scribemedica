@@ -12,9 +12,9 @@
           <h4>Update your plan to get access to more perks.</h4>
           <div class="info">
             <div style="margin-bottom: 30px" class="info--inner">
-              <h2>Tier 1</h2>
+              <h2>Unlimited Notes</h2>
               <h3 class="info--inner-description">
-                Create 375 notes per month.
+                Create unlimited notes with our AI transcription.
               </h3>
               <h3 class="info--inner-price">
                 with only ${{ myPlans[1]?.price }} per month
@@ -29,7 +29,7 @@
                 >Choose</q-btn
               >
               <h3 class="info--inner-ortext">
-                or save $240 by subscribing to yearly program.
+                or save 9% by subscribing to yearly program.
               </h3>
               <h3 class="info--inner-price">
                 with only ${{ myPlans[0]?.price }} per year.
@@ -40,40 +40,6 @@
                 style="background-color: #f57927"
                 @click="
                   handleSubscribe(myPlans[0]?.stripePriceId, myPlans[0]?.id)
-                "
-                >Choose</q-btn
-              >
-            </div>
-
-            <div style="margin-bottom: 30px" class="info--inner">
-              <h2>Tier 2</h2>
-              <h3 class="info--inner-description">
-                Create 100 notes per month.
-              </h3>
-              <h3 class="info--inner-price">
-                with only ${{ myPlans[3]?.price }} per month
-              </h3>
-              <q-btn
-                text-color="white"
-                size="md"
-                style="background-color: #f57927"
-                @click="
-                  handleSubscribe(myPlans[3]?.stripePriceId, myPlans[3]?.id)
-                "
-                >Choose</q-btn
-              >
-              <h3 class="info--inner-ortext">
-                or save $120 by subscribing to yearly program.
-              </h3>
-              <h3 class="info--inner-price">
-                with only ${{ myPlans[2]?.price }} per year.
-              </h3>
-              <q-btn
-                text-color="white"
-                size="md"
-                style="background-color: #f57927"
-                @click="
-                  handleSubscribe(myPlans[2]?.stripePriceId, myPlans[2]?.id)
                 "
                 >Choose</q-btn
               >
@@ -128,14 +94,20 @@ watch(
 watch(
   () => props.plans,
   (newValue) => {
-    // console.log("plans", newValue);
-    myPlans.value = newValue;
+    if (newValue.length > 0) {
+      myPlans.value = filterOnlyUnlimitedPlans(newValue);
+    }
   }
 );
 
+const filterOnlyUnlimitedPlans = (plans) => {
+  return plans.filter((plan) => plan.name.includes("Unlimited"));
+};
 const getPlans = (data) => {
   // Create an object to store combined plan data
   const combinedPlans = {};
+
+  console.log("im calllled");
 
   // Iterate through the data array
   data.forEach((plan) => {

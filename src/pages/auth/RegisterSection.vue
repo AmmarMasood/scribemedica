@@ -63,8 +63,17 @@
       <q-checkbox v-model="agreeTerms" color="orange" />
       <p>
         I agree to the terms of
-        <a href="/terms" target="_blank">
-          privacy policy, terms of use and BAA.</a
+        <a
+          href="https://drive.google.com/file/d/1LTJXG3QOSWIUpUjIZOrm0XgOUbkRDIFB/view?usp=sharing"
+          target="_blank"
+        >
+          privacy policy</a
+        >
+        and
+        <a
+          href="https://drive.google.com/file/d/1b-xfyJKzA2DhmRx0VpxhvQnWRtgHbhcc/view?usp=sharing"
+          target="_blank"
+          >terms of use.</a
         >
       </p>
     </div>
@@ -219,6 +228,10 @@ async function handleGoogleSignUp() {
   max-width: 500px;
   margin: 0 auto;
   min-height: 600px !important;
+
+  @media screen and (max-width: 600px) {
+    padding: 0 25px;
+  }
 }
 .card {
   height: 100%;

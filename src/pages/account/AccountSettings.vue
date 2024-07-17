@@ -96,25 +96,8 @@
                   {{ userProfile?.subscription?.planId }}
                 </p>
                 <p>{{ checkIfFreePlanIsActive(userProfile?.subscription) }}</p>
-                <p>
-                  {{
-                    userProfile?.profile?.notesAllowed > 5
-                      ? ""
-                      : "5 notes for a single person."
-                  }}
-                </p>
               </div>
               <div>
-                <h2>
-                  <span>
-                    Expires On:
-                    {{
-                      DateTime.fromISO(
-                        userProfile?.subscription?.freePlanExpirationDate
-                      ).toFormat("dd LLL yyyy")
-                    }}</span
-                  >
-                </h2>
                 <h2>
                   <span>
                     Notes Left:
@@ -158,12 +141,12 @@
                   >
                 </h2>
                 <h2>
-                  <span>
+                  <!-- <span>
                     Notes Left:
                     {{ userProfile?.notesCount }}/{{
                       userProfile?.profile?.notesAllowed
                     }}</span
-                  >
+                  > -->
                 </h2>
               </div>
             </div>

@@ -1,8 +1,8 @@
 <template>
   <div class="q-pa-md q-gutter-sm">
     <q-inner-loading :showing="loading" style="z-index: 2000000">
-      <q-spinner-gears size="100px" color="orange" style="z-index: 2000000"
-    /></q-inner-loading>
+      <q-spinner-gears size="100px" color="orange" style="z-index: 2000000" />
+    </q-inner-loading>
     <!-- User Information Dialog -->
     <q-dialog v-model="userInfoDialog" persistent>
       <q-card>
@@ -45,6 +45,21 @@
             ]"
             label="Speciality"
           />
+
+          <q-select
+            class="q-mt-md"
+            outlined
+            color="orange-14"
+            v-model="userInfo.heardAboutUs"
+            :options="[
+              'Social Media',
+              'Friend',
+              'Google Search',
+              'Third Party Review',
+              'Other',
+            ]"
+            label="How did you hear about us?"
+          />
         </q-card-section>
 
         <q-card-actions
@@ -76,27 +91,65 @@ import axiosApiInstance from "src/services/axios";
 import { auth } from "src/services/firebase";
 import { SERVER_URL } from "src/utils/constants";
 import { ref, onMounted } from "vue";
-const $q = useQuasar();
 
 export default {
   setup() {
+    const $q = useQuasar();
     const basic = ref(false);
     const fixed = ref(false);
     const userInfoDialog = ref(false);
     const userInfo = ref({
       specialty: "",
       name: "",
+      heardAboutUs: "",
     });
     const loading = ref(false);
+    const emailNotVerified = ref(
+      localStorage.getItem("emailNotVerified") ? true : false
+    );
+    const authToken = ref(localStorage.getItem("auth"));
 
-    onMounted(() => {
-      // Check if it's the user's first login
-      const isFirstLogin = localStorage.getItem("firstLogin");
-      if (isFirstLogin === "true") {
-        userInfoDialog.value = true;
-        localStorage.setItem("firstLogin", "false");
+    onMounted(async () => {
+      if (authToken.value && emailNotVerified.value === false) {
+        await fetchUserProfile();
       }
     });
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axiosApiInstance.get(
+          `${SERVER_URL}/private/auth/profile`
+        );
+
+        console.log(response.data.profile);
+        const profile = response.data.profile;
+        const isFirstLogin = localStorage.getItem("firstLogin");
+
+        if (!profile.fullName) {
+          userInfo.value.name = profile.fullName || "";
+          userInfo.value.specialty = profile.speciality || "";
+          userInfo.value.heardAboutUs = profile.heardAboutUs || "";
+
+          if (isFirstLogin === "true") {
+            userInfoDialog.value = true;
+            localStorage.setItem("firstLogin", "false");
+          }
+        } else {
+          userInfo.value.name = profile.fullName || "";
+          userInfo.value.specialty = profile.speciality || "";
+          userInfo.value.heardAboutUs = profile.heardAboutUs || "";
+          localStorage.setItem("firstLogin", "false");
+        }
+      } catch (err) {
+        $q.notify({
+          color: "negative",
+          message: "Unable to fetch profile information",
+          icon: "report_problem",
+          position: "top",
+        });
+        console.log(err);
+      }
+    };
 
     const skipUserInfo = () => {
       userInfoDialog.value = false;
@@ -120,6 +173,7 @@ export default {
         await axiosApiInstance.put(`${SERVER_URL}/private/auth/profile`, {
           fullName: userInfo.value.name,
           speciality: userInfo.value.specialty,
+          heardAboutUs: userInfo.value.heardAboutUs,
         });
         userInfoDialog.value = false;
         $q.notify({
@@ -131,7 +185,7 @@ export default {
       } catch (err) {
         $q.notify({
           color: "negative",
-          message: "Unable to  update  profile",
+          message: "Unable to update profile",
           icon: "report_problem",
           position: "top",
         });
@@ -151,6 +205,7 @@ export default {
       userInfo,
       skipUserInfo,
       submitUserInfo,
+      loading,
     };
   },
 };

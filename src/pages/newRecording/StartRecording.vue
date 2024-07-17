@@ -2,7 +2,7 @@
   <q-page id="startRecordingPage">
     <div class="container">
       <div class="container--inner">
-        <h2>Start a new recording.</h2>
+        <h2>START A VISIT.</h2>
         <!-- <q-input
           color="orange-14"
           filled
@@ -18,6 +18,13 @@
         <q-select
           color="orange-14"
           filled
+          v-model="patientGender"
+          :options="patientGenderOptions"
+          label="Gender / Pronouns"
+        />
+        <q-select
+          color="orange-14"
+          filled
           v-model="type"
           :options="options"
           label="Type"
@@ -27,7 +34,7 @@
           size="md"
           style="background-color: #f57927"
           @click="handleNewRecording"
-          >BEGIN A NEW RECORDING</q-btn
+          >NEXT</q-btn
         >
       </div>
     </div>
@@ -49,6 +56,8 @@ const type = ref(options[0]);
 const noteName = ref("");
 const patientName = ref("");
 const router = useRouter();
+const patientGender = ref("");
+const patientGenderOptions = ["She/Her", "He/Him", "They/Them"];
 
 async function handleNewRecording() {
   try {
@@ -61,6 +70,15 @@ async function handleNewRecording() {
       });
       return;
     }
+    if (!patientGender.value) {
+      $q.notify({
+        color: "negative",
+        message: "Patient gender is required",
+        icon: "report_problem",
+        position: "top",
+      });
+      return;
+    }
 
     const response = await axiosApiInstance.post(
       `${SERVER_URL}/private/notes/create`,
@@ -68,6 +86,7 @@ async function handleNewRecording() {
         type: type.value.toLowerCase(),
         // description: noteName.value,
         patientName: patientName.value,
+        patientGender: patientGender.value.toLowerCase(),
         finalized: false,
       }
     );

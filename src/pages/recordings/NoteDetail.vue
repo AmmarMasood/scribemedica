@@ -14,13 +14,6 @@
             {{ DateTime.fromISO(note?.updatedAt).toFormat("dd LLL yyyy") }}
           </p>
         </div>
-        <q-btn
-          text-color="white"
-          size="md"
-          style="background-color: #f57927"
-          @click="updateNote"
-          >Update</q-btn
-        >
       </div>
 
       <!-- <q-input
@@ -40,13 +33,6 @@
 
       <div class="header-bottom">
         <h2>Generated {{ noteDetail?.noteType }}</h2>
-        <q-btn
-          text-color="white"
-          size="md"
-          style="background-color: #f57927"
-          @click="regerateMedicalNote"
-          >Regenerate Note</q-btn
-        >
       </div>
       <q-select
         color="orange-14"
@@ -83,6 +69,22 @@
         label="Transcript"
         ref="textareaTranscript"
       />
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px">
+        <q-btn
+          text-color="white"
+          size="md"
+          style="background-color: #f57927; margin-right: 10px"
+          @click="regerateMedicalNote"
+          >Regenerate Note</q-btn
+        >
+        <q-btn
+          text-color="white"
+          size="md"
+          style="background-color: #f57927"
+          @click="updateNote"
+          >Update</q-btn
+        >
+      </div>
     </div>
   </q-page>
 </template>
@@ -110,10 +112,7 @@ const transcript = ref("");
 const noteDetail = ref(null);
 const noteDetailType = ref("");
 const noteDetailMedicalType = ref("");
-const noteDetailTypeOptions = [
-  "System Based Assessment And Plan",
-  "Clinical Discussion",
-];
+const noteDetailTypeOptions = ["SOAP Note", "Concise"];
 const patientGender = ref("");
 const patientGenderOptions = ["she/her", "he/him", "they/them"];
 const generatedNote = ref("");

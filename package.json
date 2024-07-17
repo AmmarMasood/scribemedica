@@ -2,7 +2,7 @@
   "name": "scribemedica",
   "version": "0.0.6",
   "description": "A tool to make doctors life easier.",
-  "productName": "Scribemedica",
+  "productName": "Scribe Medica | AI Medical Scribe",
   "author": "AmmarMasood <ammar.masood98@gmail.com>",
   "private": true,
   "scripts": {

@@ -120,7 +120,7 @@ import { DateTime } from "luxon";
 
 const router = useRouter();
 const searchTxt = ref("");
-const options = ["All", "Inpatient", "Outpatient", "Dictation"];
+const options = ["All", "New Patient", "Return Visit"];
 const selection = ref(options[0]);
 const details = ref([]);
 const $q = useQuasar();

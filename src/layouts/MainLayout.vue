@@ -3,13 +3,16 @@
     <q-header elevated>
       <q-toolbar class="bg-white my-toolbar">
         <q-toolbar-title>
-          <!-- Add your logo image here -->
-          <img
-            src="../assets/scribemedica.png"
-            alt="Scribe Medica Logo"
-            style="width: 200px; height: auto"
-            class="q-mt-sm"
-          />
+          <!-- if user is logged in send it to /new else do nothing -->
+          <router-link :to="linkTo">
+            <!-- Add your logo image here -->
+            <img
+              src="../assets/scribemedica.png"
+              alt="Scribe Medica Logo"
+              style="width: 200px; height: auto"
+              class="q-mt-sm"
+            />
+          </router-link>
         </q-toolbar-title>
 
         <div>
@@ -35,12 +38,12 @@
           <div v-else class="loggedIn-btns">
             <q-tabs v-model="tab" shrink>
               <router-link to="/new">
-                <q-tab name="new" label="New Recordings" class="text-orange" />
+                <q-tab name="new" label="Start A Visit" class="text-orange" />
               </router-link>
               <router-link to="/recordings">
                 <q-tab
                   name="recordings"
-                  label="Recordings"
+                  label="All Notes"
                   class="text-orange"
                 />
               </router-link>
@@ -77,13 +80,10 @@
       <div class="row q-pa-md q-mt-md">
         <div class="col">
           <q-separator />
-          <h4 class="text-h6">© 2024 Scribe Medica. All rights reserved.</h4>
-          <p>
-            Scribe Medica <br />
-            2601 Jackson Ave. #1171 <br />
-            Ann Arbor, MI 48103 <br />
-            support@scribemedica.ai
-          </p>
+          <h4 class="text-h6 text-center">
+            © 2024 Scribe Medica. All rights reserved.
+          </h4>
+          <p class="text-center">support@scribemedica.ai</p>
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { auth } from "../services/firebase";
 import { signOut } from "firebase/auth";
@@ -104,6 +104,9 @@ const isLoggedIn = ref(localStorage.getItem("auth") ? true : false);
 const emailNotVerified = ref(
   localStorage.getItem("emailNotVerified") ? true : false
 );
+const linkTo = computed(() => {
+  return isLoggedIn.value ? "/new" : "#";
+});
 
 const tab = ref(router.currentRoute.value.path.replace("/", ""));
 

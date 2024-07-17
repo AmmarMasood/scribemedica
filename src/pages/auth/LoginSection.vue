@@ -143,6 +143,10 @@ async function handleGoogleLogin() {
   max-width: 500px;
   margin: 0 auto;
   min-height: 600px !important;
+
+  @media screen and (max-width: 600px) {
+    padding: 0 25px;
+  }
 }
 .card {
   height: 100%;
