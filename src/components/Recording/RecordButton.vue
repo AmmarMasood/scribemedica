@@ -108,9 +108,30 @@ const startRecording = () => {
       var options = { mimeType: "video/webm" };
     } else if (MediaRecorder.isTypeSupported("video/mp4")) {
       var options = { mimeType: "video/mp4", videoBitsPerSecond: 100000 };
+    } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+      var options = { mimeType: "audio/mp4" };
     } else {
       console.error("no suitable mimetype found for this device");
     }
+    // const mimeTypes = [
+    //   "audio/webm", // WebM audio format
+    //   "audio/webm; codecs=opus", // WebM audio with Opus codec
+    //   "video/webm", // WebM video format
+    //   "video/webm; codecs=vp8", // WebM video with VP8 codec
+    //   "video/webm; codecs=vp9", // WebM video with VP9 codec
+    //   "video/mp4", // MP4 video format
+    //   "audio/mp4", // MP4 audio format
+    //   "video/ogg", // Ogg video format
+    //   "audio/ogg", // Ogg audio format
+    // ];
+    // mimeTypes.forEach((type) => {
+    //   if (MediaRecorder.isTypeSupported(type)) {
+    //     console.log(`Supported MIME type: ${type}`);
+    //   } else {
+    //     console.log(`Unsupported MIME type: ${type}`);
+    //   }
+    // });
+    // console.log("awesome", options, MediaRecorder);
 
     mediaRecorder = new MediaRecorder(stream, options); // Assign value to the mediaRecorder variable here
 
@@ -168,6 +189,10 @@ const startRecording = () => {
 
     socket.onerror = () => {
       stopRecording();
+    };
+
+    socket.onclose = (event) => {
+      console.log("on close", event);
     };
   });
 };

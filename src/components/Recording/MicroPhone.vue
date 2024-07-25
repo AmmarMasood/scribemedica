@@ -39,15 +39,34 @@ const selectedMicrophone = ref(null);
 
 const updateMicrophoneList = async () => {
   try {
+    // Check if the mediaDevices API is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      throw new Error("MediaDevices API is not supported on this browser.");
+    }
+
+    let stream;
+    try {
+      // Request permissions if not already granted
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+      console.error("Error accessing user media:", error);
+      alert(
+        "Microphone access is required to enumerate devices. Please allow microphone access."
+      );
+      return;
+    }
+
     const devices = await navigator.mediaDevices.enumerateDevices();
     audioDevices.value = devices.filter(
       (device) => device.kind === "audioinput"
     );
+
     audioDevices.value = audioDevices.value.map((d) => ({
-      label: d.label,
+      label: d.label || "Unknown Microphone",
       value: d.deviceId,
-      groupId: d.label,
+      groupId: d.groupId || "Unknown Group",
     }));
+
     if (audioDevices.value.length > 0) {
       const { groupId, deviceId, label } = audioDevices.value[0];
       selectedMicrophone.value = {
@@ -56,8 +75,28 @@ const updateMicrophoneList = async () => {
         groupId: groupId,
       };
     }
+
+    // Stop the stream to avoid using the microphone unnecessarily
+    stream.getTracks().forEach((track) => track.stop());
   } catch (error) {
     console.error("Error enumerating devices:", error);
+    if (error.name === "NotAllowedError") {
+      alert(
+        "Microphone access is required to enumerate devices. Please allow microphone access."
+      );
+    } else if (error.name === "NotFoundError") {
+      alert(
+        "No audio input devices found. Please ensure your microphone is connected."
+      );
+    } else if (error.name === "OverconstrainedError") {
+      alert(
+        "The constraints specified for accessing the microphone cannot be satisfied by any available device."
+      );
+    } else if (error.name === "AbortError") {
+      alert("The request was aborted due to an unspecified reason.");
+    } else {
+      alert(`Error accessing microphone: ${error.message}`);
+    }
   }
 };
 
