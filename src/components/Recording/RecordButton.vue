@@ -20,7 +20,7 @@
     </p>
 
     <div style="padding: 30px; font-size: 18px">
-      <!-- <p>{{ transcript }}</p> -->
+      <p>{{ transcript }}</p>
     </div>
   </div>
 </template>
@@ -37,6 +37,7 @@ import { useQuasar } from "quasar";
 import { auth } from "../../services/firebase";
 import { useRoute } from "vue-router";
 import MicroPhone from "./MicroPhone.vue";
+import RecordRTC from "recordrtc";
 
 // Expose 'loading' as a reactive variable
 const loading = ref(__props.loading);
@@ -49,10 +50,15 @@ const props = defineProps(["handleFinalize"]);
 const isWakeLockSupported = "wakeLock" in navigator;
 const wakeLock = ref(null);
 
-let mediaRecorder; // Move the mediaRecorder variable to a higher scope
-
+let recorder; // Use RecordRTC recorder
+let stream;
 let timer = ref(0); // Initialize timer variable in milliseconds
 let timerInterval;
+let socket; // WebSocket for Deepgram
+let audioContext;
+let analyser;
+let dataArray;
+let volumeInterval;
 
 const requestWakeLock = async () => {
   if (isWakeLockSupported) {
@@ -101,82 +107,35 @@ function formatMillisecondsToMinutesSeconds(milliseconds) {
 
 const startRecording = () => {
   requestWakeLock();
-  navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-    if (MediaRecorder.isTypeSupported("video/webm; codecs=vp9")) {
-      var options = { mimeType: "video/webm; codecs=vp9" };
-    } else if (MediaRecorder.isTypeSupported("video/webm")) {
-      var options = { mimeType: "video/webm" };
-    } else if (MediaRecorder.isTypeSupported("video/mp4")) {
-      var options = { mimeType: "video/mp4", videoBitsPerSecond: 100000 };
-    } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
-      var options = { mimeType: "audio/mp4" };
-    } else {
-      console.error("no suitable mimetype found for this device");
-    }
-    // const mimeTypes = [
-    //   "audio/webm", // WebM audio format
-    //   "audio/webm; codecs=opus", // WebM audio with Opus codec
-    //   "video/webm", // WebM video format
-    //   "video/webm; codecs=vp8", // WebM video with VP8 codec
-    //   "video/webm; codecs=vp9", // WebM video with VP9 codec
-    //   "video/mp4", // MP4 video format
-    //   "audio/mp4", // MP4 audio format
-    //   "video/ogg", // Ogg video format
-    //   "audio/ogg", // Ogg audio format
-    // ];
-    // mimeTypes.forEach((type) => {
-    //   if (MediaRecorder.isTypeSupported(type)) {
-    //     console.log(`Supported MIME type: ${type}`);
-    //   } else {
-    //     console.log(`Unsupported MIME type: ${type}`);
-    //   }
-    // });
-    // console.log("awesome", options, MediaRecorder);
+  navigator.mediaDevices.getUserMedia({ audio: true }).then((mediaStream) => {
+    stream = mediaStream;
+    recorder = new RecordRTC(stream, {
+      type: "audio",
+      mimeType: "audio/webm",
+      recorderType: RecordRTC.MediaStreamRecorder,
+      timeSlice: 250, // Send blobs every 250ms
+      ondataavailable: (blob) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(event.target.result);
+          } else {
+            stopRecording();
+          }
+        };
+        reader.readAsArrayBuffer(blob);
+      },
+    });
 
-    mediaRecorder = new MediaRecorder(stream, options); // Assign value to the mediaRecorder variable here
-
-    let socket = new WebSocket(import.meta.env.VITE_STAGE_DEEPGRAM_URL, [
+    // Set up the WebSocket connection to Deepgram
+    socket = new WebSocket(import.meta.env.VITE_STAGE_DEEPGRAM_URL, [
       "Token",
       import.meta.env.VITE_STAGE_DEEPGRAM_TOKEN,
     ]);
 
-    // Set up the Web Audio API for audio processing
-    const audioContext = new (window.AudioContext ||
-      window.webkitAudioContext)();
-    const mediaSource = audioContext.createMediaStreamSource(stream);
-    const analyser = audioContext.createAnalyser();
-    mediaSource.connect(analyser);
-
-    // Set up the analyser parameters (adjust as needed)
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    // Function to calculate the average volume level from the audio data
-    function getAverageVolume() {
-      analyser.getByteFrequencyData(dataArray);
-      let sum = 0;
-      dataArray.forEach((value) => {
-        sum += value;
-      });
-      const averageVolume = sum / dataArray.length;
-      return averageVolume;
-    }
-
     socket.onopen = () => {
-      mediaRecorder.addEventListener("dataavailable", (event) => {
-        if (socket.readyState === WebSocket.OPEN) {
-          const audioTracks = stream.getAudioTracks();
-
-          // Get the average volume level from the audio data
-          averageVolume.value = getAverageVolume();
-          socket.send(event.data);
-        } else {
-          stopRecording();
-        }
-      });
-      mediaRecorder.start(250);
-      isRecording.value = true;
+      // Start recording once the WebSocket is open
+      recorder.startRecording();
     };
 
     socket.onmessage = (event) => {
@@ -192,17 +151,50 @@ const startRecording = () => {
     };
 
     socket.onclose = (event) => {
-      console.log("on close", event);
+      console.log("WebSocket closed", event);
     };
+
+    // Set up the Web Audio API for audio processing
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const mediaSource = audioContext.createMediaStreamSource(stream);
+    analyser = audioContext.createAnalyser();
+    mediaSource.connect(analyser);
+
+    // Set up the analyser parameters (adjust as needed)
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    // Start a regular interval to update average volume
+    volumeInterval = setInterval(() => {
+      analyser.getByteFrequencyData(dataArray);
+      let sum = 0;
+      dataArray.forEach((value) => {
+        sum += value;
+      });
+      averageVolume.value = sum / dataArray.length;
+    }, 100);
+
+    isRecording.value = true;
   });
 };
 
 const stopRecording = () => {
   releaseWakeLock();
-  mediaRecorder.stop();
+  recorder.stopRecording(() => {
+    const blob = recorder.getBlob();
+    // You can handle the recorded audio blob here
+  });
+  stream.getTracks().forEach((track) => track.stop());
   isRecording.value = false;
   averageVolume.value = null;
   updateTranscriptOnPause();
+  if (socket) {
+    socket.close();
+  }
+  if (volumeInterval) {
+    clearInterval(volumeInterval);
+  }
 };
 
 const handleFinalize = () => {
@@ -310,7 +302,8 @@ onMounted(() => {
   }
 }
 .btn-recording {
-  border-width: 10px;
-  border-color: #f57927;
+  border-width: 2px;
+  border-style: solid;
+  border-color: red;
 }
 </style>
