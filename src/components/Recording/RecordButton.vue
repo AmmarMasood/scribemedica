@@ -20,7 +20,7 @@
     </p>
 
     <div style="padding: 30px; font-size: 18px">
-      <p>{{ transcript }}</p>
+      <!-- <p>{{ transcript }}</p> -->
     </div>
   </div>
 </template>
