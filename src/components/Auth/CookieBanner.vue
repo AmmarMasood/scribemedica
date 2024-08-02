@@ -30,12 +30,16 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { Cookies } from "quasar";
+
 const cookiesBanner = ref(false);
 
 const onAccept = () => {
-  Cookies.set("cookiesAccepted", true);
+  Cookies.set("cookiesAccepted", true, {
+    expires: 365, // Cookie will expire in 365 days
+    path: "/", // Cookie will be available across the entire site
+  });
   cookiesBanner.value = false;
 };
 

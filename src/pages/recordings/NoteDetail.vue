@@ -82,7 +82,7 @@
           size="md"
           style="background-color: #f57927"
           @click="updateNote"
-          >Update</q-btn
+          >Save Changes</q-btn
         >
       </div>
     </div>
@@ -112,16 +112,17 @@ const transcript = ref("");
 const noteDetail = ref(null);
 const noteDetailType = ref("");
 const noteDetailMedicalType = ref("");
-const noteDetailTypeOptions = ["SOAP Note", "Concise"];
+const noteDetailTypeOptions = ["Standard Length", "Concise"];
 const patientGender = ref("");
 const patientGenderOptions = ["she/her", "he/him", "they/them"];
 const generatedNote = ref("");
 
 const regerateMedicalNote = async () => {
-  if (transcript.value.length < 500) {
+  if (transcript.value.length < 300) {
     $q.notify({
       color: "negative",
-      message: "Transcript must have more than 500 characters",
+      message:
+        "Our AI requires just a bit more clinical information to generate an accurate clinical note.",
       icon: "report_problem",
       position: "top",
     });
@@ -184,10 +185,11 @@ const updateNote = async () => {
     return;
   }
 
-  if (transcript.value.length < 500) {
+  if (transcript.value.length < 300) {
     $q.notify({
       color: "negative",
-      message: "Transcript must have more than 500 characters",
+      message:
+        "Our AI requires just a bit more clinical information to generate an accurate clinical note.",
       icon: "report_problem",
       position: "top",
     });

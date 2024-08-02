@@ -47,7 +47,7 @@
 import { ref, defineProps, defineEmits, watch, onMounted } from "vue";
 
 const options = ["She/Her", "He/Him", "They/Them"];
-const noteTypeOptions = ["SOAP Note", "Concise"];
+const noteTypeOptions = ["Standard Length", "Concise"];
 
 // Use 'props' and 'emits' from setup context
 const props = defineProps(["show", "generateNoteDetail", "handleFinalize"]);

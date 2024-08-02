@@ -117,10 +117,11 @@ const patientGenderOptions = ["she/her", "he/him", "they/them"];
 const generatedNote = ref("");
 
 const regerateMedicalNote = async () => {
-  if (transcript.value.length < 500) {
+  if (transcript.value.length < 300) {
     $q.notify({
       color: "negative",
-      message: "Transcript must have more than 500 characters",
+      message:
+        "Our AI requires just a bit more clinical information to generate an accurate clinical note.",
       icon: "report_problem",
       position: "top",
     });
@@ -183,10 +184,11 @@ const updateNote = async () => {
     return;
   }
 
-  if (transcript.value.length < 500) {
+  if (transcript.value.length < 300) {
     $q.notify({
       color: "negative",
-      message: "Transcript must have more than 500 characters",
+      message:
+        "Our AI requires just a bit more clinical information to generate an accurate clinical note.",
       icon: "report_problem",
       position: "top",
     });

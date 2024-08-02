@@ -12,27 +12,12 @@
           <h4>Update your plan to get access to more perks.</h4>
           <div class="info">
             <div style="margin-bottom: 30px" class="info--inner">
-              <h2>Unlimited Notes</h2>
+              <h2>Professional Path</h2>
               <h3 class="info--inner-description">
                 Create unlimited notes with our AI transcription.
               </h3>
               <h3 class="info--inner-price">
-                with only ${{ myPlans[1]?.price }} per month
-              </h3>
-              <q-btn
-                text-color="white"
-                size="md"
-                style="background-color: #f57927"
-                @click="
-                  handleSubscribe(myPlans[1]?.stripePriceId, myPlans[1]?.id)
-                "
-                >Choose</q-btn
-              >
-              <h3 class="info--inner-ortext">
-                or save 9% by subscribing to yearly program.
-              </h3>
-              <h3 class="info--inner-price">
-                with only ${{ myPlans[0]?.price }} per year.
+                Yearly Plan with only ${{ myPlans[0]?.price / 12 }} per month
               </h3>
               <q-btn
                 text-color="white"
@@ -40,6 +25,21 @@
                 style="background-color: #f57927"
                 @click="
                   handleSubscribe(myPlans[0]?.stripePriceId, myPlans[0]?.id)
+                "
+                >Choose</q-btn
+              >
+              <h3 class="info--inner-ortext">
+                or subscribe to monthly program.
+              </h3>
+              <h3 class="info--inner-price">
+                with only ${{ myPlans[1]?.price }} per month.
+              </h3>
+              <q-btn
+                text-color="white"
+                size="md"
+                style="background-color: #f57927"
+                @click="
+                  handleSubscribe(myPlans[1]?.stripePriceId, myPlans[1]?.id)
                 "
                 >Choose</q-btn
               >

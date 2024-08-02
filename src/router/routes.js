@@ -35,16 +35,16 @@ const routes = [
           },
         ],
       },
-      {
-        path: "/privacy-policy",
-        component: () => import("pages/PrivacyPolicy.vue"),
-        children: [
-          {
-            path: "",
-            component: () => import("../pages/privacy/PrivacyPolicy.vue"),
-          },
-        ],
-      },
+      // {
+      //   path: "/privacy-policy",
+      //   component: () => import("pages/PrivacyPolicy.vue"),
+      //   children: [
+      //     {
+      //       path: "",
+      //       component: () => import("../pages/privacy/PrivacyPolicy.vue"),
+      //     },
+      //   ],
+      // },
       {
         path: "/auth",
         component: () => import("pages/AuthPage.vue"),

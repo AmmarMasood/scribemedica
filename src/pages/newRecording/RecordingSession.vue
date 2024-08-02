@@ -43,10 +43,11 @@ const closeFianlizeDialog = () => {
 
 const loading = ref(false);
 async function handleFinalize(transcript) {
-  if (transcript.length < 500) {
+  if (transcript.length < 300) {
     $q.notify({
       color: "negative",
-      message: "Transcript must have more than 500 characters",
+      message:
+        "Our AI requires just a bit more clinical information to generate an accurate clinical note.",
       icon: "report_problem",
       position: "top",
     });
@@ -54,7 +55,7 @@ async function handleFinalize(transcript) {
   }
   // finalizeDialog.value = true;
   myTranscript.value = transcript;
-  generateNoteDetail("SOAP Note");
+  generateNoteDetail("Standard Length");
 }
 
 const generateNoteDetail = async (noteType) => {

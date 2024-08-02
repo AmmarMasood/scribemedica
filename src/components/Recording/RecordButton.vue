@@ -2,18 +2,20 @@
   <div class="q-mt-lg container">
     <MicroPhone />
     <button :class="'btn'" @click="onClick" :disabled="loading">
-      <img :src="isRecording ? StopIcon : BtnIcon" alt="btn" />
-      <span>Capture Conversation</span>
+      <span>{{ isRecording ? "STOP/PAUSE" : "RESUME" }}</span>
     </button>
     <q-btn
       @click="handleFinalize"
       v-if="!isRecording && transcript"
       text-color="white"
       size="md"
-      style="background-color: #f57927; margin-top: 10px"
+      style="background-color: #f57927; margin-top: 20px"
     >
       Finalize
     </q-btn>
+    <p style="color: gray">
+      Keep this screen open while capturing the conversation.
+    </p>
     <SiriWave :averageVolume="averageVolume" :isRecording="isRecording" />
     <p style="font-size: 18px">
       {{ formatMillisecondsToMinutesSeconds(timer) }}
@@ -26,7 +28,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineProps } from "vue";
+import { onMounted, ref, defineProps, watch } from "vue";
 import BtnIcon from "../../assets/record-icon.png";
 import StopIcon from "../../assets/icons8-stop-64.png";
 import SiriWave from "./SiriWave.vue";
@@ -35,7 +37,7 @@ import axiosApiInstance from "../../services/axios";
 import { SERVER_URL } from "../../utils/constants";
 import { useQuasar } from "quasar";
 import { auth } from "../../services/firebase";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import MicroPhone from "./MicroPhone.vue";
 import RecordRTC from "recordrtc";
 
@@ -46,6 +48,7 @@ const transcript = ref("");
 const averageVolume = ref(null); // To store the average volume
 const $q = useQuasar();
 const route = useRoute();
+const router = useRouter();
 const props = defineProps(["handleFinalize"]);
 const isWakeLockSupported = "wakeLock" in navigator;
 const wakeLock = ref(null);
@@ -178,22 +181,25 @@ const startRecording = () => {
     isRecording.value = true;
   });
 };
-
 const stopRecording = () => {
   releaseWakeLock();
-  recorder.stopRecording(() => {
-    const blob = recorder.getBlob();
-    // You can handle the recorded audio blob here
-  });
-  stream.getTracks().forEach((track) => track.stop());
-  isRecording.value = false;
-  averageVolume.value = null;
-  updateTranscriptOnPause();
-  if (socket) {
-    socket.close();
-  }
-  if (volumeInterval) {
-    clearInterval(volumeInterval);
+  if (recorder) {
+    recorder.stopRecording(() => {
+      const blob = recorder.getBlob();
+      // You can handle the recorded audio blob here
+    });
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    isRecording.value = false;
+    averageVolume.value = null;
+    updateTranscriptOnPause();
+    if (socket) {
+      socket.close();
+    }
+    if (volumeInterval) {
+      clearInterval(volumeInterval);
+    }
   }
 };
 
@@ -248,11 +254,13 @@ const onClick = async () => {
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
     if (isRecording.value) {
-      stopRecording();
-      pauseTimer(); // Pause the timer when recording stops
+      // stopRecording();
+      // pauseTimer(); // Pause the timer when recording stops
+      updateQueryParam("pause");
     } else {
-      startRecording();
-      startTimer(); // Start the timer when recording starts
+      // startRecording();
+      // startTimer(); // Start the timer when recording starts
+      updateQueryParam("start");
     }
   } catch (error) {
     $q.notify({
@@ -265,9 +273,37 @@ const onClick = async () => {
   }
 };
 
+const updateQueryParam = (status) => {
+  router.replace({ query: { ...route.query, status } });
+};
+
+const checkQueryParam = () => {
+  const status = route.query.status;
+  if (status === "start") {
+    startRecording();
+    startTimer();
+  } else if (status === "pause") {
+    stopRecording();
+    pauseTimer();
+  } else {
+    // Default to pause if no status is provided
+    updateQueryParam("pause");
+    stopRecording();
+    pauseTimer();
+  }
+};
+
 onMounted(() => {
   getNoteDetails();
+  checkQueryParam();
 });
+
+watch(
+  () => route.query.status,
+  () => {
+    checkQueryParam();
+  }
+);
 </script>
 
 <style lang="scss" scoped>

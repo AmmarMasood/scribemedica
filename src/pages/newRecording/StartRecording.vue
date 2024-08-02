@@ -34,7 +34,7 @@
           size="md"
           style="background-color: #f57927"
           @click="handleNewRecording"
-          >NEXT</q-btn
+          >Capture Conversation</q-btn
         >
       </div>
     </div>
@@ -90,7 +90,7 @@ async function handleNewRecording() {
         finalized: false,
       }
     );
-    router.push(`/new/${response.data.type}/${response.data._id}`);
+    router.push(`/new/${response.data.type}/${response.data._id}?status=start`);
   } catch (err) {
     $q.notify({
       color: "negative",
