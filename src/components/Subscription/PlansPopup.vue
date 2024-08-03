@@ -12,7 +12,7 @@
           <h4>Update your plan to get access to more perks.</h4>
           <div class="info">
             <div style="margin-bottom: 30px" class="info--inner">
-              <h2>Professional Path</h2>
+              <h2>Professional</h2>
               <h3 class="info--inner-description">
                 Create unlimited notes with our AI transcription.
               </h3>
@@ -40,6 +40,39 @@
                 style="background-color: #f57927"
                 @click="
                   handleSubscribe(myPlans[1]?.stripePriceId, myPlans[1]?.id)
+                "
+                >Choose</q-btn
+              >
+            </div>
+            <div style="margin-bottom: 30px" class="info--inner">
+              <h2>Expert</h2>
+              <h3 class="info--inner-description">
+                Create unlimited notes with our AI transcription.
+              </h3>
+              <h3 class="info--inner-price">
+                Yearly Plan with only ${{ myPlans[2]?.price / 12 }} per month
+              </h3>
+              <q-btn
+                text-color="white"
+                size="md"
+                style="background-color: #f57927"
+                @click="
+                  handleSubscribe(myPlans[2]?.stripePriceId, myPlans[2]?.id)
+                "
+                >Choose</q-btn
+              >
+              <h3 class="info--inner-ortext">
+                or subscribe to monthly program.
+              </h3>
+              <h3 class="info--inner-price">
+                with only ${{ myPlans[3]?.price }} per month.
+              </h3>
+              <q-btn
+                text-color="white"
+                size="md"
+                style="background-color: #f57927"
+                @click="
+                  handleSubscribe(myPlans[3]?.stripePriceId, myPlans[3]?.id)
                 "
                 >Choose</q-btn
               >
@@ -220,7 +253,7 @@ const handleSubscribe = async (priceId, planId) => {
 
   &--inner {
     border: 2px solid f57927;
-    width: 350px;
+    width: 365px;
     padding: 20px;
     text-align: center;
     border-radius: 10px;

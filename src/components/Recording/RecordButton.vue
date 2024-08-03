@@ -1,9 +1,20 @@
 <template>
   <div class="q-mt-lg container">
     <MicroPhone />
+    <p
+      style="
+        color: gray;
+        margin-top: 20px;
+        text-align: center;
+        text-transform: capitalize;
+      "
+    >
+      Patient Name: {{ patientName }}
+    </p>
     <button :class="'btn'" @click="onClick" :disabled="loading">
       <span>{{ isRecording ? "STOP/PAUSE" : "RESUME" }}</span>
     </button>
+
     <q-btn
       @click="handleFinalize"
       v-if="!isRecording && transcript"
@@ -13,12 +24,20 @@
     >
       Finalize
     </q-btn>
-    <p style="color: gray">
-      Keep this screen open while capturing the conversation.
-    </p>
+
     <SiriWave :averageVolume="averageVolume" :isRecording="isRecording" />
     <p style="font-size: 18px">
       {{ formatMillisecondsToMinutesSeconds(timer) }}
+    </p>
+    <p
+      style="
+        color: gray;
+        margin-top: 20px;
+        text-align: center;
+        margin: 20px 10px 10px 10px;
+      "
+    >
+      Keep this screen open while capturing the conversation.
     </p>
 
     <div style="padding: 30px; font-size: 18px">
@@ -52,6 +71,7 @@ const router = useRouter();
 const props = defineProps(["handleFinalize"]);
 const isWakeLockSupported = "wakeLock" in navigator;
 const wakeLock = ref(null);
+const patientName = ref("");
 
 let recorder; // Use RecordRTC recorder
 let stream;
@@ -212,7 +232,9 @@ const getNoteDetails = async () => {
     const response = await axiosApiInstance.get(
       `${SERVER_URL}/private/notes/${route.params.patientId}`
     );
+    console.log("damn", response);
     if (response.data.note) {
+      patientName.value = response.data.note.patientName;
       if (response.data.note.transcription) {
         transcript.value = response.data.note.transcription;
         timer.value = response.data.note.recordingLength;

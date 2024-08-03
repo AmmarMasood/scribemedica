@@ -50,25 +50,63 @@
         label="Gender / Pronouns"
         class="field"
       /> -->
-      <q-input
-        type="textarea"
-        color="orange-14"
-        filled
-        v-model="generatedNote"
-        label="Generated Notes"
-        class="extaread-field"
-        ref="textareaNote"
-      />
-      <q-input
-        type="textarea"
-        color="orange-14"
-        filled
-        style="margin-top: 30px"
-        v-model="transcript"
-        class="extaread-field"
-        label="Transcript"
-        ref="textareaTranscript"
-      />
+      <div class="textarea-container">
+        <q-input
+          type="textarea"
+          color="orange-14"
+          filled
+          v-model="generatedNote"
+          label="Generated Notes"
+          class="extaread-field"
+          ref="textareaNote"
+        />
+        <q-btn
+          icon="content_copy"
+          @click="copyText(generatedNote)"
+          color="orange-14"
+          flat
+          round
+          class="copy-btn"
+        />
+      </div>
+      <div class="textarea-container" style="margin-top: 30px">
+        <q-input
+          type="textarea"
+          color="orange-14"
+          filled
+          v-model="patientInstructions"
+          class="extaread-field"
+          label="Patient Instructions"
+          ref="textareaPatientInstructions"
+        />
+        <q-btn
+          icon="content_copy"
+          @click="copyText(patientInstructions)"
+          color="orange-14"
+          flat
+          round
+          class="copy-btn"
+        />
+      </div>
+      <div class="textarea-container" style="margin-top: 30px">
+        <q-input
+          type="textarea"
+          color="orange-14"
+          filled
+          v-model="transcript"
+          class="extaread-field"
+          label="Transcript"
+          ref="textareaTranscript"
+        />
+        <q-btn
+          icon="content_copy"
+          @click="copyText(transcript)"
+          color="orange-14"
+          flat
+          round
+          class="copy-btn"
+        />
+      </div>
       <div style="display: flex; justify-content: flex-end; margin-top: 20px">
         <q-btn
           text-color="white"
@@ -116,6 +154,7 @@ const noteDetailTypeOptions = ["Standard Length", "Concise"];
 const patientGender = ref("");
 const patientGenderOptions = ["she/her", "he/him", "they/them"];
 const generatedNote = ref("");
+const patientInstructions = ref("");
 
 const regerateMedicalNote = async () => {
   if (transcript.value.length < 300) {
@@ -142,7 +181,6 @@ const regerateMedicalNote = async () => {
   //     color: "negative",
   //     message: "Patient gender is required",
   //     icon: "report_problem",
-  //     position: "top",
   //   });
   //   return;
   // }
@@ -153,11 +191,13 @@ const regerateMedicalNote = async () => {
       {
         transcript: transcript.value,
         noteType: noteDetailType.value,
+
         // patientGender: patientGender.value,
       }
     );
     if (res.data) {
       generatedNote.value = res.data.note;
+      patientInstructions.value = res.data.patientInstructions;
     }
   } catch (err) {
     console.log(err);
@@ -201,7 +241,6 @@ const updateNote = async () => {
   //     color: "negative",
   //     message: "Patient gender is required",
   //     icon: "report_problem",
-  //     position: "top",
   //   });
   //   return;
   // }
@@ -248,6 +287,7 @@ const updateNote = async () => {
 const getNoteDetails = async () => {
   loading.value = true;
   try {
+    if (!route.params.noteId) return;
     const res = await axiosApiInstance.get(
       `${SERVER_URL}/private/notes/${route.params.noteId}`
     );
@@ -264,6 +304,7 @@ const getNoteDetails = async () => {
       noteDetailType.value = res.data.noteDetail.noteType;
       noteDetailMedicalType.value = res.data.noteDetail.medicalNote;
       generatedNote.value = res.data.noteDetail.medicalNote;
+      patientInstructions.value = res.data.noteDetail.patientInstructions;
     }
   } catch (err) {
     console.log(err);
@@ -275,6 +316,26 @@ const getNoteDetails = async () => {
     });
   }
   loading.value = false;
+};
+
+const copyText = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    $q.notify({
+      color: "positive",
+      message: "Text copied to clipboard.",
+      icon: "check",
+      position: "top",
+    });
+  } catch (err) {
+    console.log(err);
+    $q.notify({
+      color: "negative",
+      message: "Failed to copy text.",
+      icon: "report_problem",
+      position: "top",
+    });
+  }
 };
 
 onMounted(() => {
@@ -359,5 +420,13 @@ onMounted(() => {
     margin-top: 20px;
     font-size: 20px;
   }
+}
+.textarea-container {
+  position: relative;
+}
+.copy-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
 }
 </style>

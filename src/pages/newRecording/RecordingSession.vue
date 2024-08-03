@@ -4,7 +4,8 @@
       <q-spinner-gears size="100px" color="orange" style="z-index: 2000000" />
       <p>Generating note...</p>
     </div>
-    <AudioButton :handleFinalize="handleFinalize" />
+    <AudioButton :handleFinalize="handleFinalize" />\
+
     <DiagnosisDialog
       :show="show"
       :chiefComplaint="chiefComplaintR"
@@ -60,6 +61,7 @@ async function handleFinalize(transcript) {
 
 const generateNoteDetail = async (noteType) => {
   loading.value = true;
+  if (!route.params.patientId) return;
   try {
     const res = await axiosApiInstance.post(
       `${SERVER_URL}/private/notes/${route.params.patientId}/finalize`,
