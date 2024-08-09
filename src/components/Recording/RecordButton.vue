@@ -213,6 +213,7 @@ const stopRecording = () => {
     }
     isRecording.value = false;
     averageVolume.value = null;
+    pauseTimer();
     updateTranscriptOnPause();
     if (socket) {
       socket.close();
@@ -229,10 +230,11 @@ const handleFinalize = () => {
 
 const getNoteDetails = async () => {
   try {
+    if (!route.params.patientId) return;
     const response = await axiosApiInstance.get(
       `${SERVER_URL}/private/notes/${route.params.patientId}`
     );
-    console.log("damn", response);
+
     if (response.data.note) {
       patientName.value = response.data.note.patientName;
       if (response.data.note.transcription) {
