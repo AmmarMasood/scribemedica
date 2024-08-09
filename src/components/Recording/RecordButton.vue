@@ -253,6 +253,7 @@ const getNoteDetails = async () => {
 };
 
 const updateTranscriptOnPause = async () => {
+  if (!route.params.patientId) return;
   if (!transcript.value && transcript.value.replace(/ /g, "").length <= 0)
     return;
   try {
